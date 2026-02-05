@@ -140,6 +140,14 @@ func TestDecodeColumn(t *testing.T) {
 			want:  `null`,
 		},
 		{
+			desc: "interval",
+			value: spanner.NullInterval{
+				Interval: spanner.Interval{Months: 1, Days: 1, Nanos: big.NewInt(3_600_000_000_000)},
+				Valid:    true,
+			},
+			want: `P1M1DT1H`,
+		},
+		{
 			desc:  "uuid",
 			value: spanner.NullUUID{UUID: uuid.MustParse("1778a92d-dcdb-4e7c-a515-b6f953b59e54"), Valid: true},
 			want:  `1778a92d-dcdb-4e7c-a515-b6f953b59e54`,
@@ -194,6 +202,11 @@ func TestDecodeColumn(t *testing.T) {
 		{
 			desc:  "null json",
 			value: spanner.NullJSON{Value: nil, Valid: false},
+			want:  "NULL",
+		},
+		{
+			desc:  "null interval",
+			value: spanner.NullInterval{Interval: spanner.Interval{}, Valid: false},
 			want:  "NULL",
 		},
 		{
@@ -279,6 +292,14 @@ func TestDecodeColumn(t *testing.T) {
 			want: `[{"msg":"foo"}, {"msg":"bar"}]`,
 		},
 		{
+			desc: "array interval",
+			value: []spanner.NullInterval{
+				{Interval: spanner.Interval{Months: 1, Days: 1, Nanos: big.NewInt(3_600_000_000_000)}, Valid: true},
+				{Interval: spanner.Interval{}, Valid: true},
+			},
+			want: `[P1M1DT1H, P0Y]`,
+		},
+		{
 			desc: "array uuid",
 			value: []spanner.NullUUID{
 				{UUID: uuid.MustParse("1778a92d-dcdb-4e7c-a515-b6f953b59e54"), Valid: true},
@@ -336,6 +357,11 @@ func TestDecodeColumn(t *testing.T) {
 		{
 			desc:  "null array json",
 			value: []spanner.NullJSON(nil),
+			want:  "NULL",
+		},
+		{
+			desc:  "null array interval",
+			value: []spanner.NullInterval(nil),
 			want:  "NULL",
 		},
 		{

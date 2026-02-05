@@ -175,6 +175,17 @@ func DecodeColumn(column spanner.GenericColumnValue) (string, error) {
 			for _, v := range vs {
 				decoded = append(decoded, nullJSONToString(v))
 			}
+		case sppb.TypeCode_INTERVAL:
+			var vs []spanner.NullInterval
+			if err := column.Decode(&vs); err != nil {
+				return "", err
+			}
+			if vs == nil {
+				return "NULL", nil
+			}
+			for _, v := range vs {
+				decoded = append(decoded, nullIntervalToString(v))
+			}
 		case sppb.TypeCode_UUID:
 			var vs []spanner.NullUUID
 			if err := column.Decode(&vs); err != nil {
@@ -248,6 +259,12 @@ func DecodeColumn(column spanner.GenericColumnValue) (string, error) {
 			return "", err
 		}
 		return nullJSONToString(v), nil
+	case sppb.TypeCode_INTERVAL:
+		var v spanner.NullInterval
+		if err := column.Decode(&v); err != nil {
+			return "", err
+		}
+		return nullIntervalToString(v), nil
 	case sppb.TypeCode_UUID:
 		var v spanner.NullUUID
 		if err := column.Decode(&v); err != nil {
@@ -334,6 +351,14 @@ func nullDateToString(v spanner.NullDate) string {
 }
 
 func nullJSONToString(v spanner.NullJSON) string {
+	if v.Valid {
+		return v.String()
+	} else {
+		return "NULL"
+	}
+}
+
+func nullIntervalToString(v spanner.NullInterval) string {
 	if v.Valid {
 		return v.String()
 	} else {
